@@ -35,11 +35,9 @@ class DQN(torch.nn.Module):
         conv_out_size = int(np.prod(self.conv(torch.zeros(1, *input_size)).size()))
 
         self.fc = torch.nn.Sequential(
-            torch.nn.Linear(conv_out_size, 128),
+            torch.nn.Linear(conv_out_size, 512),
             torch.nn.ReLU(),
-            torch.nn.Linear(128, 256),
-            torch.nn.ReLU(),
-            torch.nn.Linear(256, output_size)
+            torch.nn.Linear(512, output_size)
         )
 
     def forward(self, x):
@@ -71,12 +69,11 @@ def get_action(state):
 def calc_loss(state, action, next_state, reward, done):
     # Check that action index is correct here, not sure
     current_q = [model.forward(torch.FloatTensor(state))[action] for model in models]
-    # A lot of literature uses min rather than the outer (max), however, this would seem to train to minimise reward to me
-    # the max here seems to work better to me
     next_q = torch.min(*[torch.max(model.forward(torch.FloatTensor(next_state))) for model in models])
     #Flatten next q?
     # move lambda somewhere better
     expected_q = next_q * 0.99 * (1 - done) + reward
+    # print(expected_q)
 
     return [torch.nn.functional.mse_loss(q, expected_q) for q in current_q]
 
@@ -94,7 +91,7 @@ for episode in range(10000):
     state = env.reset()
 
     # Max steps, may need tweaking
-    for step in range(100):
+    for step in range(1000):
         action = get_action(state)
 
         # print(action)
@@ -103,6 +100,7 @@ for episode in range(10000):
         episode_reward += reward
 
         loss = calc_loss(state, action, next_state, reward, done)
+        #print(loss)
 
         # Not sure why but it has to be done this way
         opts[0].zero_grad()
@@ -115,6 +113,10 @@ for episode in range(10000):
         opts[1].step()
 
         state = next_state
+
+        if done:
+            #Finish episode
+            break
 
         # env.render()
 
