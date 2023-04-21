@@ -1,3 +1,5 @@
 gym-super-mario-bros
-gym==0.23.1
+gym==0.25.2
 torch
+Pillow
+opencv-python
