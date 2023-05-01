@@ -135,7 +135,7 @@ def calc_loss(state, action, next_state, reward, done):
     return [torch.nn.functional.mse_loss(q, expected_q) for q in current_q]
 
 #New DDQN Batch loss function with Experience 
-
+#https://towardsdatascience.com/deep-q-network-dqn-ii-b6bf911b6b2c -- Implentation inspiration from here
 def batch_loss(batch): 
     y = []
     Q = []
