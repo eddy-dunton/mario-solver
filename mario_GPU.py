@@ -181,12 +181,14 @@ def train_random():
         done = False
         random_episode_reward=0
         
-        while not done:
+        for rand in range(10):
             action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
+            obs, reward, done, info = env.rand(action)
             random_episode_reward+= reward
-        
         total_rewards.append(random_episode_reward)
+        
+        if done:
+            break
     env.close()
     return total_rewards 
 
