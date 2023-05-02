@@ -6,11 +6,12 @@ import numpy as np
 import torch
 import nes_py.wrappers
 import wrappers
+import matplotlib.pyplot as plt
 
 
 """
 Originally written by Eddy Dunton, eed34@bath.ac.uk
-Additional code by Harry Patient , hp610@bath.ac.uk
+Additional code by Harry Patient , hp610@bath.ac.uk and Ishaan Singh iks33@bath.ac.uk
 
 Based on:
 
@@ -38,7 +39,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 #ADDED- tweakable parameters
-epochs = 10000 #total number of epochs
+epochs = 10 #total number of epochs
 batch_size = 64 #number of samples in mini batch for loss calculation
 epsilon = 0.2 #greedy epsilon policy setter 
 D_size =100 #number of steps in a replay memory
@@ -115,6 +116,7 @@ def get_action(state):
     else:
         # Random exploration
         return env.action_space.sample()
+    
 
 
 # Calculates loss
@@ -152,6 +154,7 @@ def batch_loss(batch):
     y_t = torch.tensor(y).to(device)
 
     return Q_t,y_t
+
 # Create environment
 env = create_env()
 
@@ -168,11 +171,31 @@ opt = torch.optim.AdamW(models[0].parameters())
 
 D = [] #experience replay
 
+env_rand=create_env()
+
+#Trains a random agent that does not learn (Just for results comparison)
+def train_random():
+    total_rewards= []
+    for i in range(epochs):
+        obs = env_rand.reset()
+        done = False
+        random_episode_reward=0
+
+        while not done:
+            action = env_rand.action_space.sample()
+            obs, reward, done, info = env_rand.step(action)
+            random_episode_reward+= reward
+        total_rewards.append(random_episode_reward)
+        
+    env_rand.close()    
+    return total_rewards 
+
+total_episode_reward=[]
 # Run 10000 episodes (rarely reached)
 for episode in range(epochs):
     episode_reward = 0
     state = env.reset() #essentially initalised agent 
-
+       
     # Max steps, may need tweaking
     for step in range(1000):
         action = get_action(state)
@@ -202,7 +225,36 @@ for episode in range(epochs):
             # Stop episode if episode is finished
             if done:
                 break
-        # env.render()
+        env.render()
+        
+    total_episode_reward.append(episode_reward)    
     print(f"Episode: {episode}, reward: {episode_reward}")
+    
+env.close()    
+    
+random_rewards = train_random()
+  
+""" Rest of the code is just to plot the graphs"""    
 
-env.close()
+iters = list(range(epochs))    
+
+x = iters
+y1 = total_episode_reward 
+y2 = random_rewards
+    
+plt.plot(x, y1, color='r', label='Our Agent')
+plt.plot(x, y2, color='g', label='Random Agent')
+  
+# Naming the x-axis, y-axis and the whole graph
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.title("Rewards per Episode by the DDQN agent vs An Agent that doesn not learn anything")
+  
+# Adding legend, which helps us recognize the curve according to it's color
+plt.legend()
+  
+# To load the display window
+plt.show()
+
+
+

@@ -3,3 +3,4 @@ gym==0.25.2
 torch
 Pillow
 opencv-python
+cuda==11.8
