@@ -162,7 +162,7 @@ for episode in range(10000):
         if done:
             break
 
-        # env.render()
+        env.render()
 
     print(f"Episode: {episode}, reward: {episode_reward}")
 
