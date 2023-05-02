@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 """
 Originally written by Eddy Dunton, eed34@bath.ac.uk
-Additional code by Harry Patient , hp610@bath.ac.uk
+Additional code by Harry Patient , hp610@bath.ac.uk and Ishaan Singh iks33@bath.ac.uk
 
 Based on:
 
