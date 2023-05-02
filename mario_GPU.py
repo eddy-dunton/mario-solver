@@ -171,25 +171,23 @@ opt = torch.optim.AdamW(models[0].parameters())
 
 D = [] #experience replay
 
+env_rand=create_env()
+
 #Trains a random agent that does not learn (Just for results comparison)
 def train_random():
-    
     total_rewards= []
     for i in range(epochs):
-        env=create_env()
-        obs = env.reset()
+        obs = env_rand.reset()
         done = False
         random_episode_reward=0
-        
-        for rand in range(10):
-            action = env.action_space.sample()
-            obs, reward, done, info = env.rand(action)
+
+        while not done:
+            action = env_rand.action_space.sample()
+            obs, reward, done, info = env_rand.step(action)
             random_episode_reward+= reward
         total_rewards.append(random_episode_reward)
         
-        if done:
-            break
-    env.close()
+    env_rand.close()    
     return total_rewards 
 
 total_episode_reward=[]
